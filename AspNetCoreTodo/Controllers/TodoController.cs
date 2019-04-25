@@ -10,15 +10,12 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AspNetCoreTodo.Controllers
 {
-    [Authorize]
     public class TodoController : Controller
     {
         ITodoItemService _todoItemService;
-        UserManager<ApplicationUser> _userManager;
-        public TodoController(ITodoItemService todoItemService, UserManager<ApplicationUser> userManager)
+        public TodoController(ITodoItemService todoItemService)
         {
             _todoItemService = todoItemService;
-            _userManager = userManager;
         }
         public async Task<IActionResult> Index()
         {
