@@ -33,5 +33,19 @@ namespace AspNetCoreTodo.Services
                 .ToArrayAsync();
             return items;
         }
+
+        public async Task<bool> MarkDoneAsync(Guid id)
+        {
+            var item = await _context.Items
+                .Where(x => x.Id == id)
+                .FirstOrDefaultAsync();
+            if (item == null)
+            {
+                return false;
+            }
+            item.IsDone = true;
+            var saveResult = await _context.SaveChangesAsync();
+            return saveResult == 1;
+        }
     }
 }
