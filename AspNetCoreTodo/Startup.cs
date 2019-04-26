@@ -14,6 +14,9 @@ using AspNetCoreTodo.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using AspNetCoreTodo.Services;
+using Autofac;
+using Autofac.Extensions.DependencyInjection;
+using System.Reflection;
 
 namespace AspNetCoreTodo
 {
@@ -24,7 +27,7 @@ namespace AspNetCoreTodo
             Configuration = configuration;
         }
 
-        public IConfiguration Configuration { get; } 
+        public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -45,8 +48,38 @@ namespace AspNetCoreTodo
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.AddScoped<ITodoItemService, TodoItemService>();
-        }
+            //初始化注入容器 autofac
+            //ContainerBuilder containerBuilder = new ContainerBuilder();
+            //containerBuilder.Populate(services);
+            //var container = containerBuilder.Build();
+            //return new AutofacServiceProvider(container);
+            foreach (var item in GetClassName("Service"))
+            {
+                foreach (var typeArry in item.Value)
+                {
+                    services.AddScoped(typeArry, item
+                        .Key);
+                }
+            }
 
+        }
+        //根据程序集的名称获取类对应的接口类型
+        public Dictionary<Type, Type[]> GetClassName(string assemblyName)
+        {
+            if (!string.IsNullOrEmpty(assemblyName))
+            {
+                Assembly assembly = Assembly.Load(assemblyName);
+                List<Type> types = assembly.GetTypes().ToList();
+                var result = new Dictionary<Type, Type[]>();
+                foreach (var item in types.Where(x => !x.IsInterface))
+                {
+                    var interfaceType = item.GetInterfaces();
+                    result.Add(item, interfaceType);
+                }
+                return result;
+            }
+            return null;
+        }
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {

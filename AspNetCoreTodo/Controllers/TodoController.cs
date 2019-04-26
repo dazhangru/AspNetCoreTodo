@@ -7,15 +7,18 @@ using AspNetCoreTodo.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Service;
 
 namespace AspNetCoreTodo.Controllers
 {
     public class TodoController : Controller
     {
+        IA _A;
         ITodoItemService _todoItemService;
-        public TodoController(ITodoItemService todoItemService)
+        public TodoController(ITodoItemService todoItemService,IA A)
         {
             _todoItemService = todoItemService;
+            _A = A;
         }
         public async Task<IActionResult> Index()
         {
@@ -52,6 +55,11 @@ namespace AspNetCoreTodo.Controllers
                 return BadRequest("Could not mark item as done.");
             }
             return RedirectToAction("Index");
+        }
+        public  IActionResult Test()
+        {
+            var str = _A.SayHi("Chang");
+            return View((object)str);
         }
     }
 }
